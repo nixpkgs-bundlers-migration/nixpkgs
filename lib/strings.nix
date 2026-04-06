@@ -2695,6 +2695,35 @@ rec {
     else
       false;
 
+  /*
+    Returns a store path based on a dervivation or a path that returns the final Store path.
+
+    # Inputs
+
+    `target`
+
+    : The store path target
+
+    This function was taken from nix-bundle in nix-community: https://github.com/nix-community/nix-bundle/blob/eff01593f62794d458ec714090091419194ab64d/default.nix#L8-L24
+  */
+  toStorePath =
+    target:
+    # If a store path has been given but is not a derivation, add the missing context
+    # to it so it will be propagated properly as a build input.
+    if !(lib.isDerivation target) && isStorePath target then
+      let
+        path = toString target;
+      in
+      builtins.appendContext path {
+        "${path}" = {
+          path = true;
+        };
+      }
+    # Otherwise, add to the store. This takes care of appending the store path
+    # in the context automatically.
+    else
+      "${target}";
+
   /**
     Parse a string as an int. Does not support parsing of integers with preceding zero due to
     ambiguity between zero-padded and octal numbers. See `toIntBase10`.

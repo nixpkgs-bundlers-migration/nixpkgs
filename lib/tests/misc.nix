@@ -70,6 +70,7 @@ let
     id
     ifilter0
     isStorePath
+    toStorePath
     join
     lazyDerivation
     length
@@ -961,6 +962,33 @@ runTests {
         list = false;
         int = false;
       };
+    };
+  };
+
+  testToStorePath = {
+    expr =
+      let
+        goodPath = "${builtins.storeDir}/d945ibfx9x185xf04b890y4f9g3cbb63-python-2.7.11";
+        goodCAPath = "/1121rp0gvr1qya7hvy925g5kjwg66acz6sn1ra1hca09f1z5dsab";
+      in
+      {
+        storePath = toStorePath goodPath;
+        storePathDerivation = toStorePath dummyDerivation;
+        storePathAppendix = toStorePath "${goodPath}/bin/python";
+        asPath = toStorePath (/. + goodPath);
+
+        caPath = toStorePath goodCAPath;
+        caPathAppendix = toStorePath "${goodCAPath}/bin/python";
+        caAsPath = toStorePath (/. + goodCAPath);
+
+        otherVals = {
+          attrset = toStorePath { };
+          list = toStorePath [ ];
+          int = toStorePath 42;
+        };
+      };
+    expected = {
+
     };
   };
 
